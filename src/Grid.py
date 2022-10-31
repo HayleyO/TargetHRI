@@ -1,5 +1,4 @@
 from enum import Enum
-from turtle import up
 
 class Grid:
 
