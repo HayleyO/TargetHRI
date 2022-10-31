@@ -7,3 +7,6 @@
 # Q-Learning MDP
 
 # Create and display q-table
+
+
+# Oracle creation which is A*
