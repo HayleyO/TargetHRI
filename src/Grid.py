@@ -64,7 +64,13 @@ class Grid:
         self.set_element(row, col, self.bot_token)
         row_target, col_target = self.get_target_location()
         return row == row_target and col == col_target
-        
+
+    def print_grid(self):
+        for row in self.grid:
+            row_print = ""
+            for col in row:
+                row_print =+ self.grid[row][col] + " "
+            print(row_print)
 
 
 class Directions(Enum):
