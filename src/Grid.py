@@ -17,7 +17,7 @@ class Grid:
         return grid
 
     def refresh_grid(self):
-        self.create_grid()
+        self.grid = self.create_grid()
 
     def get_element(self, row, col):
         return self.grid[row][col]
@@ -66,7 +66,7 @@ class Grid:
                 col = col + 1
         row_target, col_target = self.get_target_location()
         self.set_element(row, col, self.bot_token)
-        return row == row_target and col == col_target
+        return (row == row_target and col == col_target)
 
     def print_grid(self):
         for row in self.grid:

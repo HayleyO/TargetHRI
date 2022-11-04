@@ -95,13 +95,12 @@ class Q_Learning_RL_environment():
                 self.grid.print_grid()
             self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
             rewards_per_episode.append(total_episode_reward)
+        return rewards_per_episode
 
         
     def take_action(self, action):
         if action == Actions.Ask_For_Guidance:
             # TODO:
-            # Error check user guidance input
-            # Incoporate user_guidance as action
             # Incoporate oracle as guidance with A*
             self.grid.print_grid()
             parsing = True
@@ -136,4 +135,4 @@ class Actions(Enum):
 
 if __name__ == "__main__":
     rl = Q_Learning_RL_environment()
-    rl.run_episodes()
+    rewards_per_episode = rl.run_episodes()
