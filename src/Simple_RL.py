@@ -80,7 +80,8 @@ class Q_Learning_RL_environment():
                 
                 next_state, reward, done = self.take_action(action)
                 action_index = self.action_index(action) # Get table index of actions
-                # Update q table 
+                # Update q table
+                # Potential "changed/improved" algorithm problem: action will be "guidance" but it won't be specific from guidance -> guided action
                 self.q_table[current_step_state, action_index] = (1-self.lr) * self.q_table[current_step_state, action_index] + self.lr*(reward + self.gamma*max(self.q_table[next_state,:]))
                 
                 if step == self.max_turn -1:
