@@ -16,6 +16,9 @@ class Grid:
         grid[self.height-1][self.width-1] = self.target_token
         return grid
 
+    def refresh_grid(self):
+        self.grid = self.create_grid()
+
     def get_element(self, row, col):
         return self.grid[row][col]
 
@@ -61,17 +64,19 @@ class Grid:
             if col < self.width-1:
                 self.set_element(row, col, self.empty_token)
                 col = col + 1
-        self.set_element(row, col, self.bot_token)
         row_target, col_target = self.get_target_location()
-        return row == row_target and col == col_target
+        self.set_element(row, col, self.bot_token)
+        return (row == row_target and col == col_target)
 
     def print_grid(self):
         for row in self.grid:
             row_print = ""
             for col in row:
-                row_print =+ self.grid[row][col] + " "
+                row_print = row_print + str(col) + " | "
             print(row_print)
-
+            print("-" * 21)
+        print()
+        print()
 
 class Directions(Enum):
     Up = 1
