@@ -41,6 +41,20 @@ class Q_Learning_RL_environment():
         else:
             return -1
 
+    def action_from_index(self, action_index):
+        if action_index == 0:
+            return Actions.Ask_For_Guidance
+        elif action_index == 1:
+            return Actions.Up
+        elif action_index == 2:
+            return Actions.Down                
+        elif action_index == 3:
+            return Actions.Left
+        elif action_index == 4:
+            return Actions.Right
+        else:
+            return -1
+
     def get_state_from_grid_position(self):
         row, col = self.grid.get_robot_location()
         self.current_state = ((row*3) + col)
@@ -50,6 +64,7 @@ class Q_Learning_RL_environment():
     def run_episodes(self):
         rewards_per_episode = []
         for e in range(self.n_episodes):
+            self.grid.refresh_grid()
             current_step_state = self.get_state_from_grid_position()
             done = False    
 
@@ -58,9 +73,10 @@ class Q_Learning_RL_environment():
 
                 # This is called greedy epsilon, it takes random actions to "explore"
                 if np.random.uniform(0,1) < self.epsilon:
-                    action = random.choice([self.actions.keys()])
+                    action, _ = random.choice(list(self.actions.items()))
                 else:
-                    action = np.argmax(self.q_table[current_step_state,:])
+                    action_index = np.argmax(self.q_table[current_step_state,:])
+                    action = self.action_from_index(action_index)
                 
                 next_state, reward, done = self.take_action(action)
                 action_index = self.action_index(action) # Get table index of actions
@@ -76,6 +92,7 @@ class Q_Learning_RL_environment():
                     break
 
                 current_step_state = next_state # While technically the robot is in the next_state at this point, this updates it logically
+                self.grid.print_grid()
             self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
             rewards_per_episode.append(total_episode_reward)
 
@@ -83,18 +100,31 @@ class Q_Learning_RL_environment():
     def take_action(self, action):
         if action == Actions.Ask_For_Guidance:
             # TODO:
-            # Print out grid
             # Error check user guidance input
             # Incoporate user_guidance as action
             # Incoporate oracle as guidance with A*
-            user_guidance = input("What move should the robot make (Left, Right, Up, Down)? :")
-            action = Actions.Right
+            self.grid.print_grid()
+            parsing = True
+            while parsing:
+                user_guidance = input("What move should the robot make (Left, Right, Up, Down)?: ")
+                if user_guidance.lower() in ["left", "l", "right", "r", "up", "u", "down", "d"]:
+                    if user_guidance.lower() in["up", "u"]:
+                        action = Actions.Up
+                    elif user_guidance.lower() in["down", "d"]:
+                        action = Actions.Down
+                    elif user_guidance.lower() in["left", "l"]:
+                        action = Actions.Left
+                    else:
+                        action = Actions.Right
+                    parsing = False
+                else:
+                    print("I don't recognize that, sorry, try again: ")
         termination_state = self.grid.move_robot(self.actions[action])
         self.current_state = self.get_state_from_grid_position()
         if termination_state:
-            return self.current_state, self.termination_correct_reward, True
+            return self.current_state, self.termination_correct_reward, termination_state
         else:
-            return self.current_state, self.non_termination_reward, False
+            return self.current_state, self.non_termination_reward, termination_state
 
 
 class Actions(Enum):
@@ -106,3 +136,4 @@ class Actions(Enum):
 
 if __name__ == "__main__":
     rl = Q_Learning_RL_environment()
+    rl.run_episodes()
