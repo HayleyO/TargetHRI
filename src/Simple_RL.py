@@ -2,12 +2,14 @@ import random
 import numpy as np
 from enum import Enum
 from Grid import Grid, Directions
+from Oracle import Oracle
 
 class Q_Learning_RL_environment():
 
-    def __init__(self, grid = Grid()):
+    def __init__(self, grid = Grid(), oracle=None):
         # States: dimension x dimension grid
         self.grid = grid
+        self.oracle = oracle
         self.current_state = self.get_state_from_grid_position()
         # Actions: [Ask_For_Guidance, Go_Left, Go_Right, Go_Up, Go_Down]
         self.actions = {Actions.Ask_For_Guidance: "n/a", Actions.Up: Directions.Up, Actions.Down: Directions.Down, Actions.Left: Directions.Left, Actions.Right: Directions.Right}
@@ -54,6 +56,16 @@ class Q_Learning_RL_environment():
             return Actions.Right
         else:
             return -1
+
+    def action_from_direction(self, action_direction):
+        if action_direction == Directions.Up:
+            return Actions.Up
+        if action_direction == Directions.Down:
+            return Actions.Down
+        if action_direction == Directions.Left:
+            return Actions.Left 
+        if action_direction == Directions.Right:
+            return Actions.Right
 
     def get_state_from_grid_position(self):
         row, col = self.grid.get_robot_location()
@@ -103,22 +115,25 @@ class Q_Learning_RL_environment():
         if action == Actions.Ask_For_Guidance:
             # TODO:
             # Incoporate oracle as guidance with A*
-            self.grid.print_grid()
-            parsing = True
-            while parsing:
-                user_guidance = input("What move should the robot make (Left, Right, Up, Down)?: ")
-                if user_guidance.lower() in ["left", "l", "right", "r", "up", "u", "down", "d"]:
-                    if user_guidance.lower() in["up", "u"]:
-                        action = Actions.Up
-                    elif user_guidance.lower() in["down", "d"]:
-                        action = Actions.Down
-                    elif user_guidance.lower() in["left", "l"]:
-                        action = Actions.Left
+            # Asks oracle if given, otherwise interacts with user
+            if self.oracle == None:
+                self.grid.print_grid()
+                parsing = True
+                while parsing:
+                    user_guidance = input("What move should the robot make (Left, Right, Up, Down)?: ")
+                    if user_guidance.lower() in ["left", "l", "right", "r", "up", "u", "down", "d"]:
+                        if user_guidance.lower() in["up", "u"]:
+                            action = Actions.Up
+                        elif user_guidance.lower() in["down", "d"]:
+                            action = Actions.Down
+                        elif user_guidance.lower() in["left", "l"]:
+                            action = Actions.Left
+                        elif user_guidance.lower() in ['right', 'r']:
+                            action = Actions.Right
+                        parsing = False
                     else:
-                        action = Actions.Right
-                    parsing = False
-                else:
-                    print("I don't recognize that, sorry, try again: ")
+                        print("I don't recognize that, sorry, try again: ")
+            else: action = self.action_from_direction(self.oracle.give_advice(self.grid))
         termination_state = self.grid.move_robot(self.actions[action])
         self.current_state = self.get_state_from_grid_position()
         if termination_state:
@@ -135,5 +150,5 @@ class Actions(Enum):
     Down = 5
 
 if __name__ == "__main__":
-    rl = Q_Learning_RL_environment()
+    rl = Q_Learning_RL_environment(oracle=Oracle('truthful'))
     rewards_per_episode = rl.run_episodes()
