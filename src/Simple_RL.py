@@ -19,7 +19,7 @@ class Q_Learning_RL_environment():
         self.non_termination_reward = -1
         
         self.q_table = np.zeros(((self.grid.width*self.grid.height), len(self.actions)))
-
+        self.rewards_per_episode = []
         # Hyperparamaters
         self.n_episodes = 10000
         self.max_turn = 100
@@ -69,7 +69,7 @@ class Q_Learning_RL_environment():
 
     def get_state_from_grid_position(self):
         row, col = self.grid.get_robot_location()
-        self.current_state = ((row*3) + col)
+        self.current_state = ((row*self.grid.height) + col)
         return self.current_state
 
     # Q-Learning MDP
@@ -108,6 +108,7 @@ class Q_Learning_RL_environment():
                 self.grid.print_grid()
             self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
             rewards_per_episode.append(total_episode_reward)
+        self.rewards_per_episode = rewards_per_episode
         return rewards_per_episode
 
         
@@ -143,11 +144,12 @@ class Q_Learning_RL_environment():
 
 
 class Actions(Enum):
-    Ask_For_Guidance = 1,
-    Left = 2,
-    Right = 3,
-    Up = 4,
-    Down = 5
+    Ask_For_Guidance = 0,
+    Up = 1,
+    Down = 2,
+    Left = 3,
+    Right = 4   
+    
 
 if __name__ == "__main__":
     rl = Q_Learning_RL_environment(oracle=Oracle('truthful'))
