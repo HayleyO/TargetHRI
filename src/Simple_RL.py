@@ -3,10 +3,12 @@ import numpy as np
 from enum import Enum
 from Grid import Grid, Directions
 from Oracle import Oracle
+from SaveAndLoadHelper import save, load_q_table
+from DataAnalysis import ratio, euclidean_dist
 
 class Q_Learning_RL_environment():
 
-    def __init__(self, grid = Grid(), oracle=None):
+    def __init__(self, episodes=10000, grid = Grid(), oracle=None):
         # States: dimension x dimension grid
         self.grid = grid
         self.oracle = oracle
@@ -20,8 +22,10 @@ class Q_Learning_RL_environment():
         
         self.q_table = np.zeros(((self.grid.width*self.grid.height), len(self.actions)))
         self.rewards_per_episode = []
+        self.steps_per_episode = []
+
         # Hyperparamaters
-        self.n_episodes = 10000
+        self.n_episodes = episodes
         self.max_turn = 100
         self.epsilon = 1 # Exploration (for epsilon exploration and decay)
         self.lr = 0.1 # Learning rate (for q_table calculations)
@@ -80,6 +84,7 @@ class Q_Learning_RL_environment():
             current_step_state = self.get_state_from_grid_position()
             done = False    
 
+            step_i = 0
             total_episode_reward = 0
             for step in range(self.max_turn):
 
@@ -102,10 +107,13 @@ class Q_Learning_RL_environment():
                     total_episode_reward = total_episode_reward + reward
 
                 if done:
+                    step_i = step
                     break
 
                 current_step_state = next_state # While technically the robot is in the next_state at this point, this updates it logically
                 self.grid.print_grid()
+                step_i = step
+            self.steps_per_episode.append(step_i)
             self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
             rewards_per_episode.append(total_episode_reward)
         self.rewards_per_episode = rewards_per_episode
@@ -114,9 +122,6 @@ class Q_Learning_RL_environment():
         
     def take_action(self, action):
         if action == Actions.Ask_For_Guidance:
-            # TODO:
-            # Incoporate oracle as guidance with A*
-            # Asks oracle if given, otherwise interacts with user
             if self.oracle == None:
                 self.grid.print_grid()
                 parsing = True
@@ -134,6 +139,55 @@ class Q_Learning_RL_environment():
                         parsing = False
                     else:
                         print("I don't recognize that, sorry, try again: ")
+
+                curr_state = self.get_state_from_grid_position()
+                cur_guide_q = self.q_table[curr_state][self.action_index(Actions.Ask_For_Guidance)]
+                cur_dir_q = self.q_table[curr_state][self.action_index(action)]
+                print("Current Guide Q: " + str(cur_guide_q))
+                print("Curent Direction Q: " + str(cur_dir_q))
+
+                current_decision = (cur_dir_q - cur_guide_q)
+                print("Curent Decision Q: " + str(current_decision))
+
+                q_table_truth = load_q_table(name="Test_Truth")
+                true_guide_q = q_table_truth[curr_state][self.action_index(Actions.Ask_For_Guidance)]
+                true_dir_q = q_table_truth[curr_state][self.action_index(action)]
+                print("True Guide Q: " + str(true_guide_q))
+                print("True Direction Q: " + str(true_dir_q))
+
+                truth_decision = (true_dir_q - true_guide_q)
+                print("Truth Decision Q: " + str(truth_decision))
+
+                q_table_lie = load_q_table(name="Test_Lie")
+                lie_guide_q = q_table_lie[curr_state][self.action_index(Actions.Ask_For_Guidance)]
+                lie_dir_q = q_table_lie[curr_state][self.action_index(action)]
+                print("Lie Guide Q: " + str(lie_guide_q))
+                print("Lie Direction Q: " + str(lie_dir_q))
+
+                lie_decision = (lie_dir_q - lie_guide_q)
+                print("Lie Decision Q: " + str(lie_decision))
+
+                print()
+                print()
+                print()
+
+                print("Truth Similarity")
+                ratio(current_decision, truth_decision)
+                ratio(truth_decision, current_decision)
+                true_dist = euclidean_dist(truth_decision, current_decision)
+
+                print("Lie Similarity")
+                ratio(current_decision, lie_decision)
+                ratio(lie_decision, current_decision)
+                lie_dist = euclidean_dist(lie_decision, current_decision)
+
+                if lie_dist <= true_dist:
+                    m = np.zeros(len(self.actions), dtype=bool)
+                    m[0] = True
+                    a = np.ma.array(self.q_table[curr_state,:], mask=m)
+                    action_index = np.argmax(a)
+                    action = self.action_from_index(action_index)
+
             else: action = self.action_from_direction(self.oracle.give_advice(self.grid))
         termination_state = self.grid.move_robot(self.actions[action])
         self.current_state = self.get_state_from_grid_position()
@@ -152,5 +206,18 @@ class Actions(Enum):
     
 
 if __name__ == "__main__":
-    rl = Q_Learning_RL_environment(oracle=Oracle('truthful'))
-    rewards_per_episode = rl.run_episodes()
+    
+    rl_truth = Q_Learning_RL_environment(oracle=Oracle('truthful'))
+    _ = rl_truth.run_episodes()
+    save(rl_truth, name="Test_Truth")
+
+    rl_lie = Q_Learning_RL_environment(oracle=Oracle('lying'))
+    _ = rl_lie.run_episodes()
+    save(rl_lie, name="Test_Lie")
+
+    rl_err = Q_Learning_RL_environment(oracle=Oracle('erroneous'))
+    _ = rl_err.run_episodes()
+    save(rl_err, name="Test_Err")
+
+    #rl = Q_Learning_RL_environment(episodes=1)
+    #rewards_per_episode = rl.run_episodes()
