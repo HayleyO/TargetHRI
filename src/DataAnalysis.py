@@ -21,11 +21,15 @@ def print_start_end_steps(steps):
 def print_average_steps(steps):
     print("Average steps: " + str(mean(steps)))
 
-def ratio(value1, value2):
+def ratio(value1, value2, print_ratio=True):
     if value2 != 0:
-        print(str(value1) +"/"+ str(value2) + ": " + str(value1/value2))
+        ratio = value1/value2
     else:
-        print(str(value1) +"/"+ str(value2) + ": " + str(-math.inf))
+        ratio = -math.inf
+        
+    if print_ratio:
+        print(str(value1) +"/"+ str(value2) + ": " + str(ratio))
+    return ratio
 
 def euclidean_dist(value1, value2, print_dist=True):
     dist = math.dist([value1], [value2])
@@ -37,10 +41,13 @@ if __name__ == "__main__":
     q_table_truth, rewards_truth, steps_truth = load(name="Test_Truth")
     q_table_lie, rewards_lie, steps_lie = load(name="Test_Lie")
     q_table_err, rewards_err, steps_err = load(name="Test_Err")
+    q_table_test, rewards_test, steps_test = load(name="Test_Err_Human")
 
     display_q_table(q_table_truth)
     display_q_table(q_table_lie)
     display_q_table(q_table_err)
+    display_q_table(q_table_test)
+
 
     #print_rewards(q_table_truth)
     #print_rewards(q_table_lie)
@@ -49,7 +56,10 @@ if __name__ == "__main__":
     print_start_end_steps(steps_truth)
     print_start_end_steps(steps_lie)
     print_start_end_steps(steps_err)
+    print_start_end_steps(rewards_test)
+
 
     print_average_steps(steps_truth)
     print_average_steps(steps_lie)
     print_average_steps(steps_err)
+    print_average_steps(steps_test)
