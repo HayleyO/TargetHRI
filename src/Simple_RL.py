@@ -8,10 +8,11 @@ from DataAnalysis import ratio, euclidean_dist
 
 class Q_Learning_RL_environment():
 
-    def __init__(self, episodes=10000, grid = Grid(), oracle=None):
+    def __init__(self, episodes=10000, grid = Grid(), oracle=None, guidance=True):
         # States: dimension x dimension grid
         self.grid = grid
         self.oracle = oracle
+        self.guidance = guidance
         self.current_state = self.get_state_from_grid_position()
         # Actions: [Ask_For_Guidance, Go_Left, Go_Right, Go_Up, Go_Down]
         self.actions = {Actions.Ask_For_Guidance: "n/a", Actions.Up: Directions.Up, Actions.Down: Directions.Down, Actions.Left: Directions.Left, Actions.Right: Directions.Right}
@@ -76,24 +77,38 @@ class Q_Learning_RL_environment():
         self.current_state = ((row*self.grid.height) + col)
         return self.current_state
 
+    def epsilon_greedy(self, current_step_state):
+        # This is called greedy epsilon, it takes random actions to "explore"
+        if np.random.uniform(0,1) < self.epsilon:
+            if self.guidance:
+                action, _ = random.choice(list(self.actions.items()))
+            else:
+                action, _ = random.choice([x for x in self.actions if x != Actions.Ask_For_Guidance])
+        else:
+            if self.guidance:
+                action_index = np.argmax(self.q_table[current_step_state,:])
+                action = self.action_from_index(action_index)
+            else:
+                m = np.zeros(len(self.actions), dtype=bool)
+                m[0] = True
+                a = np.ma.array(self.q_table[current_step_state,:], mask=m)
+                action_index = np.argmax(a)
+                action = self.action_from_index(action_index)
+        return action
+
     # Q-Learning MDP
-    def run_episodes(self):
+    def run_episodes(self, print_grid=True):
         rewards_per_episode = []
         for e in range(self.n_episodes):
             self.grid.refresh_grid()
             current_step_state = self.get_state_from_grid_position()
             done = False    
 
-            step_i = 0
+            step_i = 0 #Used for counting how many steps taken in an episode
             total_episode_reward = 0
             for step in range(self.max_turn):
 
-                # This is called greedy epsilon, it takes random actions to "explore"
-                if np.random.uniform(0,1) < self.epsilon:
-                    action, _ = random.choice(list(self.actions.items()))
-                else:
-                    action_index = np.argmax(self.q_table[current_step_state,:])
-                    action = self.action_from_index(action_index)
+                action = self.epsilon_greedy(current_step_state)
                 
                 next_state, reward, done = self.take_action(action)
                 action_index = self.action_index(action) # Get table index of actions
@@ -101,7 +116,7 @@ class Q_Learning_RL_environment():
                 # Potential "changed/improved" algorithm problem: action will be "guidance" but it won't be specific from guidance -> guided action
                 self.q_table[current_step_state, action_index] = (1-self.lr) * self.q_table[current_step_state, action_index] + self.lr*(reward + self.gamma*max(self.q_table[next_state,:]))
                 
-                if step == self.max_turn -1:
+                if step == self.max_turn-1:
                     total_episode_reward = total_episode_reward + self.termination_incorrect_reward
                 else:
                     total_episode_reward = total_episode_reward + reward
@@ -111,7 +126,8 @@ class Q_Learning_RL_environment():
                     break
 
                 current_step_state = next_state # While technically the robot is in the next_state at this point, this updates it logically
-                self.grid.print_grid()
+                if print_grid:
+                    self.grid.print_grid()
                 step_i = step
             self.steps_per_episode.append(step_i)
             self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
@@ -119,6 +135,8 @@ class Q_Learning_RL_environment():
         self.rewards_per_episode = rewards_per_episode
         return rewards_per_episode
 
+    def load_q_table(self, path="SavedRuns", name="test"):
+        self.q_table = load_q_table(path, name)
         
     def take_action(self, action):
         if action == Actions.Ask_For_Guidance:
@@ -172,16 +190,16 @@ class Q_Learning_RL_environment():
                 print()
 
                 print("Truth Similarity")
-                ratio(current_decision, truth_decision)
-                ratio(truth_decision, current_decision)
+                true_ratio1 = ratio(current_decision, truth_decision)
+                true_ratio2 = ratio(truth_decision, current_decision)
                 true_dist = euclidean_dist(truth_decision, current_decision)
 
                 print("Lie Similarity")
-                ratio(current_decision, lie_decision)
-                ratio(lie_decision, current_decision)
+                lie_ratio1 = ratio(current_decision, lie_decision)
+                lie_ratio2 = ratio(lie_decision, current_decision)
                 lie_dist = euclidean_dist(lie_decision, current_decision)
 
-                if lie_dist <= true_dist:
+                if lie_ratio2 <= true_ratio2:
                     m = np.zeros(len(self.actions), dtype=bool)
                     m[0] = True
                     a = np.ma.array(self.q_table[curr_state,:], mask=m)
@@ -219,5 +237,11 @@ if __name__ == "__main__":
     _ = rl_err.run_episodes()
     save(rl_err, name="Test_Err")
 
+    rl_no_guide = Q_Learning_RL_environment(guidance=False)
+    _ = rl_no_guide.run_episodes()
+    save(rl_err, name="Test_No_Guide")
+
     #rl = Q_Learning_RL_environment(episodes=1)
-    #rewards_per_episode = rl.run_episodes()
+    #rl.load_q_table(name="Test_Err_Human")
+    #rewards_per_episode = rl.run_episodes(print_grid=False)
+    #save(rl, name="Test_Rl")
