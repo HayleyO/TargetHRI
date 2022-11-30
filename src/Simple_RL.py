@@ -83,7 +83,7 @@ class Q_Learning_RL_environment():
             if self.guidance:
                 action, _ = random.choice(list(self.actions.items()))
             else:
-                action, _ = random.choice([x for x in self.actions if x != Actions.Ask_For_Guidance])
+                action, _ = random.choice(list(self.actions.items())[1:])
         else:
             if self.guidance:
                 action_index = np.argmax(self.q_table[current_step_state,:])

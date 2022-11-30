@@ -41,12 +41,12 @@ if __name__ == "__main__":
     q_table_truth, rewards_truth, steps_truth = load(name="Test_Truth")
     q_table_lie, rewards_lie, steps_lie = load(name="Test_Lie")
     q_table_err, rewards_err, steps_err = load(name="Test_Err")
-    q_table_test, rewards_test, steps_test = load(name="Test_Err_Human")
+    q_table_test_no_guide, rewards_test_no_guide, steps_test_no_guide = load(name="Test_No_Guide")
 
     display_q_table(q_table_truth)
     display_q_table(q_table_lie)
     display_q_table(q_table_err)
-    display_q_table(q_table_test)
+    display_q_table(q_table_test_no_guide)
 
 
     #print_rewards(q_table_truth)
@@ -56,10 +56,10 @@ if __name__ == "__main__":
     print_start_end_steps(steps_truth)
     print_start_end_steps(steps_lie)
     print_start_end_steps(steps_err)
-    print_start_end_steps(rewards_test)
+    print_start_end_steps(rewards_test_no_guide)
 
 
     print_average_steps(steps_truth)
     print_average_steps(steps_lie)
     print_average_steps(steps_err)
-    print_average_steps(steps_test)
+    print_average_steps(steps_test_no_guide)
