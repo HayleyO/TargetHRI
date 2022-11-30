@@ -37,16 +37,35 @@ def euclidean_dist(value1, value2, print_dist=True):
         print("Distance: " + str(dist))
     return dist
 
+def multiplication(value1, value2, print_mult=True):
+    result = value1*value2
+    if print_mult:
+        print("Multiplication: " + str(result))
+    return result
+
+def average(value_list, print_average=True):
+    sum = 0
+    for value in value_list:
+        sum = sum + value
+    average = sum/len(value_list)
+    if print_average:
+        print("Average: " + str(average))
+    return average
+    
 if __name__ == "__main__":
     q_table_truth, rewards_truth, steps_truth = load(name="Test_Truth")
     q_table_lie, rewards_lie, steps_lie = load(name="Test_Lie")
     q_table_err, rewards_err, steps_err = load(name="Test_Err")
     q_table_test_no_guide, rewards_test_no_guide, steps_test_no_guide = load(name="Test_No_Guide")
+    q_table_test_err_human_w_alg_truth, rewards_test_err_human_w_alg_truth, steps_test_err_human_w_alg_truth = load(name="Test_Err_Human_w_alg_true")
+    q_table_test_err_human_w_alg_lie, rewards_test_err_human_w_alg_lie, steps_test_err_human_w_alg_lie = load(name="Test_Err_Human_w_alg_lie")
 
     display_q_table(q_table_truth)
     display_q_table(q_table_lie)
     display_q_table(q_table_err)
     display_q_table(q_table_test_no_guide)
+    display_q_table(q_table_test_err_human_w_alg_truth)
+    display_q_table(q_table_test_err_human_w_alg_lie)
 
 
     #print_rewards(q_table_truth)
@@ -56,10 +75,12 @@ if __name__ == "__main__":
     print_start_end_steps(steps_truth)
     print_start_end_steps(steps_lie)
     print_start_end_steps(steps_err)
-    print_start_end_steps(rewards_test_no_guide)
+    print_start_end_steps(steps_test_no_guide)
+    print_start_end_steps(steps_test_err_human_w_alg_truth)
+    print_start_end_steps(steps_test_err_human_w_alg_lie)
 
 
-    print_average_steps(steps_truth)
-    print_average_steps(steps_lie)
-    print_average_steps(steps_err)
-    print_average_steps(steps_test_no_guide)
+    #print_average_steps(steps_truth)
+    #print_average_steps(steps_lie)
+    #print_average_steps(steps_err)
+    #print_average_steps(steps_test_no_guide)

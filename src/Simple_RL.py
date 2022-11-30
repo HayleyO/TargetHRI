@@ -4,7 +4,7 @@ from enum import Enum
 from Grid import Grid, Directions
 from Oracle import Oracle
 from SaveAndLoadHelper import save, load_q_table
-from DataAnalysis import ratio, euclidean_dist
+from DataAnalysis import ratio, euclidean_dist, multiplication, average
 
 class Q_Learning_RL_environment():
 
@@ -158,6 +158,7 @@ class Q_Learning_RL_environment():
                     else:
                         print("I don't recognize that, sorry, try again: ")
 
+                #Get current state and decision
                 curr_state = self.get_state_from_grid_position()
                 cur_guide_q = self.q_table[curr_state][self.action_index(Actions.Ask_For_Guidance)]
                 cur_dir_q = self.q_table[curr_state][self.action_index(action)]
@@ -172,7 +173,6 @@ class Q_Learning_RL_environment():
                 true_dir_q = q_table_truth[curr_state][self.action_index(action)]
                 print("True Guide Q: " + str(true_guide_q))
                 print("True Direction Q: " + str(true_dir_q))
-
                 truth_decision = (true_dir_q - true_guide_q)
                 print("Truth Decision Q: " + str(truth_decision))
 
@@ -181,7 +181,6 @@ class Q_Learning_RL_environment():
                 lie_dir_q = q_table_lie[curr_state][self.action_index(action)]
                 print("Lie Guide Q: " + str(lie_guide_q))
                 print("Lie Direction Q: " + str(lie_dir_q))
-
                 lie_decision = (lie_dir_q - lie_guide_q)
                 print("Lie Decision Q: " + str(lie_decision))
 
@@ -189,17 +188,59 @@ class Q_Learning_RL_environment():
                 print()
                 print()
 
-                print("Truth Similarity")
-                true_ratio1 = ratio(current_decision, truth_decision)
-                true_ratio2 = ratio(truth_decision, current_decision)
-                true_dist = euclidean_dist(truth_decision, current_decision)
+                print("Ratios")
+                lie_true_sim_ratio = ratio(true_guide_q, lie_guide_q)
+                true_q_ratio = ratio(true_guide_q, cur_guide_q)
+                lie_q_ratio = ratio(lie_guide_q, cur_guide_q)
 
-                print("Lie Similarity")
-                lie_ratio1 = ratio(current_decision, lie_decision)
-                lie_ratio2 = ratio(lie_decision, current_decision)
-                lie_dist = euclidean_dist(lie_decision, current_decision)
+                true_dist_to_1 = euclidean_dist(true_q_ratio, 1)
+                lie_dist_to_1 = euclidean_dist(lie_q_ratio, 1)
+                #true_q_dist = euclidean_dist(true_q_ratio, lie_true_sim_ratio)
+                #lie_q_dist = euclidean_dist(lie_q_ratio, lie_true_sim_ratio)
+                #lie_true_decision_sim_ratio = ratio(truth_decision, lie_decision)
 
-                if lie_ratio2 <= true_ratio2:
+                true_adjusted_q = multiplication(lie_true_sim_ratio, cur_guide_q)
+                lie_adjusted_q = ratio(cur_guide_q, lie_true_sim_ratio)
+                average_adjusted = average([true_adjusted_q, lie_adjusted_q])
+
+
+                true_q_adjust_ratio = ratio(true_guide_q, average_adjusted)
+                lie_q_adjust_ratio = ratio(lie_guide_q, average_adjusted)
+
+                true_dist_to_1 = euclidean_dist(true_q_adjust_ratio, 1)
+                lie_dist_to_1 = euclidean_dist(lie_q_adjust_ratio, 1)
+
+                true_dist_to_self = euclidean_dist(true_q_adjust_ratio, true_q_ratio)
+                lie_dist_to_self = euclidean_dist(lie_q_adjust_ratio, lie_q_ratio)
+
+                true_average_dist = euclidean_dist(true_dist_to_1, true_dist_to_self)
+                lie_average_dist = euclidean_dist(lie_dist_to_1, lie_dist_to_self)
+                #true_q_dist_adjusted = euclidean_dist(true_guide_q, true_adjusted_q)
+                #true_q_dist_adjusted_lie = euclidean_dist(true_guide_q, lie_adjusted_q) #*
+                #lie_q_dist_adjusted = euclidean_dist(lie_guide_q, lie_adjusted_q)
+                #lie_q_dist_adjusted_true = euclidean_dist(lie_guide_q, true_adjusted_q) #*
+                #print("Truth Similarity")
+                #true_ratio1 = ratio(current_decision, truth_decision)
+                #true_ratio2 = ratio(truth_decision, current_decision)
+                #true_dist = euclidean_dist(truth_decision, current_decision)
+                #true_q_dist = euclidean_dist(true_guide_q, cur_guide_q)
+                #true_dist_ratio = ratio(true_q_dist, true_dist)
+                #true_ratio_from_1 = euclidean_dist(1, true_dist_ratio)
+                #true_ratio_from_0 = euclidean_dist(0, true_dist_ratio)
+                #true_ratio_from_05 = euclidean_dist(0.5, true_dist_ratio)
+
+
+                #print("Lie Similarity")
+                #lie_ratio1 = ratio(current_decision, lie_decision)
+                #lie_ratio2 = ratio(lie_decision, current_decision)
+                #lie_dist = euclidean_dist(lie_decision, current_decision)
+                #lie_q_dist = euclidean_dist(lie_guide_q, cur_guide_q)
+                #lie_dist_ratio = ratio(lie_q_dist, lie_dist)
+                #lie_ratio_from_1 = euclidean_dist(1, lie_dist_ratio)
+                #lie_ratio_from_0 = euclidean_dist(0, lie_dist_ratio)
+                #lie_ratio_from_05 = euclidean_dist(0.5, lie_dist_ratio)
+
+                if lie_dist_to_self <= true_dist_to_self:
                     m = np.zeros(len(self.actions), dtype=bool)
                     m[0] = True
                     a = np.ma.array(self.q_table[curr_state,:], mask=m)
@@ -225,7 +266,7 @@ class Actions(Enum):
 
 if __name__ == "__main__":
     
-    rl_truth = Q_Learning_RL_environment(oracle=Oracle('truthful'))
+    '''rl_truth = Q_Learning_RL_environment(oracle=Oracle('truthful'))
     _ = rl_truth.run_episodes()
     save(rl_truth, name="Test_Truth")
 
@@ -239,9 +280,15 @@ if __name__ == "__main__":
 
     rl_no_guide = Q_Learning_RL_environment(guidance=False)
     _ = rl_no_guide.run_episodes()
-    save(rl_err, name="Test_No_Guide")
+    save(rl_no_guide, name="Test_No_Guide")'''
 
-    #rl = Q_Learning_RL_environment(episodes=1)
-    #rl.load_q_table(name="Test_Err_Human")
-    #rewards_per_episode = rl.run_episodes(print_grid=False)
-    #save(rl, name="Test_Rl")
+    rl = Q_Learning_RL_environment(episodes=1)
+    rl.load_q_table(name="Test_Err")
+    rewards_per_episode = rl.run_episodes(print_grid=False)
+    save(rl, name="Test_Err_Human_w_alg_true")
+
+    print("LIE")
+    rl = Q_Learning_RL_environment(episodes=1)
+    rl.load_q_table(name="Test_Err")
+    rewards_per_episode = rl.run_episodes(print_grid=False)
+    save(rl, name="Test_Err_Human_w_alg_lie")
