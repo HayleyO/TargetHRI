@@ -57,12 +57,12 @@ def normalize(q_table):
     return (q_table-np.min(q_table))/(np.max(q_table)-np.min(q_table))
 
 if __name__ == "__main__":
-    q_table_truth, rewards_truth, steps_truth = load(name="Test_Truth")
-    q_table_lie, rewards_lie, steps_lie = load(name="Test_Lie")
-    q_table_err, rewards_err, steps_err = load(name="Test_Err")
-    q_table_test_no_guide, rewards_test_no_guide, steps_test_no_guide = load(name="Test_No_Guide")
-    q_table_test_err_human_w_alg_truth, rewards_test_err_human_w_alg_truth, steps_test_err_human_w_alg_truth = load(name="Test_Err_Human_w_alg_true")
-    q_table_test_err_human_w_alg_lie, rewards_test_err_human_w_alg_lie, steps_test_err_human_w_alg_lie = load(name="Test_Err_Human_w_alg_lie")
+    q_table_truth, rewards_truth, steps_truth, _, _ = load(name="Test_Truth")
+    q_table_lie, rewards_lie, steps_lie, _, _ = load(name="Test_Lie")
+    q_table_err, rewards_err, steps_err, _, _ = load(name="Test_Err")
+    q_table_test_no_guide, rewards_test_no_guide, steps_test_no_guide, _, _ = load(name="Test_No_Guide")
+    q_table_test_err_human_w_alg_truth, rewards_test_err_human_w_alg_truth, steps_test_err_human_w_alg_truth, _, _ = load(name="Test_Err_Human_w_alg_true")
+    q_table_test_err_human_w_alg_lie, rewards_test_err_human_w_alg_lie, steps_test_err_human_w_alg_lie, _, _ = load(name="Test_Err_Human_w_alg_lie")
 
     display_q_table(q_table_truth)
     display_q_table(q_table_lie)
