@@ -2,6 +2,7 @@ from SaveAndLoadHelper import load, load_rewards, load_q_table
 from statistics import mean
 import pandas
 import math
+import numpy as np
 
 def display_q_table(q_table):
     col_labels = ['Guidance', 'Up', 'Down', 'Left', 'Right']
@@ -51,7 +52,10 @@ def average(value_list, print_average=True):
     if print_average:
         print("Average: " + str(average))
     return average
-    
+
+def normalize(q_table):
+    return (q_table-np.min(q_table))/(np.max(q_table)-np.min(q_table))
+
 if __name__ == "__main__":
     q_table_truth, rewards_truth, steps_truth = load(name="Test_Truth")
     q_table_lie, rewards_lie, steps_lie = load(name="Test_Lie")
@@ -67,7 +71,12 @@ if __name__ == "__main__":
     display_q_table(q_table_test_err_human_w_alg_truth)
     display_q_table(q_table_test_err_human_w_alg_lie)
 
-
+    normalized_q_true = normalize(q_table_truth)
+    display_q_table(normalized_q_true)
+    normalized_q_lie = normalize(q_table_lie)
+    display_q_table(normalized_q_lie)
+    normalized_q_err = normalize(q_table_err)
+    display_q_table(normalized_q_err)
     #print_rewards(q_table_truth)
     #print_rewards(q_table_lie)
     #print_rewards(q_table_err)
