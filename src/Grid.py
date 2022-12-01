@@ -68,6 +68,22 @@ class Grid:
         self.set_element(row, col, self.bot_token)
         return (row == row_target and col == col_target)
 
+    def check_move(self, direction):
+        row, col = self.get_robot_location()
+        if direction == Directions.Up:     
+            if row > 0:
+                row = row - 1
+        elif direction == Directions.Down:
+            if row < self.height-1:
+                row = row + 1
+        elif direction == Directions.Left:
+            if col > 0:
+                col = col - 1
+        elif direction == Directions.Right:
+            if col < self.width-1:
+                col = col + 1
+        return ((row*self.height) + col)
+
     def print_grid(self):
         for row in self.grid:
             row_print = ""
