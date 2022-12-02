@@ -5,9 +5,9 @@ from DataAnalysis import average
 if __name__ == "__main__":
 
     RUNS = 10
-    TRAIN = False
+    TRAIN = True
     PRINT_DATA = False
-    EPSILON = 1
+    EPSILON = 0.5
 
     if TRAIN:
         # Algorithm w/ true human feedback
@@ -18,7 +18,7 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode= rl.run_episodes(print_grid=False, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_True_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_True_"+str(run)+"_"+str(EPSILON))
 
         # Algorithm w/ false human feedback
         print("Give false guidance")
@@ -28,7 +28,7 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=False, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_Lie_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_Lie_"+str(run)+"_"+str(EPSILON))
 
         # No algorithm w/ true human feedback
         print("Give true guidance")
@@ -38,7 +38,7 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=False, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_True_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_True_"+str(run)+"_"+str(EPSILON))
 
         # No algorithm w/ false human feedback
         print("Give false guidance")
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=False, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run)+"_"+str(EPSILON))
 
         # No algorithm w/ no human feedback
         for run in range(RUNS):
@@ -57,12 +57,12 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=False, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_no_Human"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_no_Human"+str(run)+"_"+str(EPSILON))
 
     truth_steps = []
     truth_accuracy = []        
     for run in range(RUNS):
-        q_table_truth, rewards_truth, steps_truth, lie_count_true, guide_count_true = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_True_"+str(run))
+        q_table_truth, rewards_truth, steps_truth, lie_count_true, guide_count_true = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_True_"+str(run)+"_"+str(EPSILON))
         truth_steps.append(steps_truth[0])
         if guide_count_true != 0:
             truth_accuracy.append((guide_count_true-lie_count_true)/guide_count_true)
@@ -70,24 +70,24 @@ if __name__ == "__main__":
     lie_steps = []
     lie_accuracy = []
     for run in range(RUNS):
-        q_table_lie, rewards_lie, steps_lie, lie_count_lie, guide_count_lie = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_Lie_"+str(run))
+        q_table_lie, rewards_lie, steps_lie, lie_count_lie, guide_count_lie = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_alg_Lie_"+str(run)+"_"+str(EPSILON))
         lie_steps.append(steps_lie[0])
         if guide_count_lie != 0:
             lie_accuracy.append(lie_count_lie/guide_count_lie)
 
     truth_no_alg_steps = []
     for run in range(RUNS):
-        q_table_truth, rewards_truth, steps_truth_no_alg, lie_count_true_no_alg, guide_count_true_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_True_"+str(run))
+        q_table_truth, rewards_truth, steps_truth_no_alg, lie_count_true_no_alg, guide_count_true_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_True_"+str(run)+"_"+str(EPSILON))
         truth_no_alg_steps.append(steps_truth_no_alg[0])
     
     lie_no_alg_steps = []
     for run in range(RUNS):
-        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run))
+        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run)+"_"+str(EPSILON))
         lie_no_alg_steps.append(steps_lie_no_alg[0])
 
     no_guide_steps = []
     for run in range(RUNS):
-        q_table_lie, rewards_lie, steps_no_guide, _, _ = load(path="SavedRuns/Analysis", name="Test_Err_no_Human"+str(run))
+        q_table_lie, rewards_lie, steps_no_guide, _, _ = load(path="SavedRuns/Analysis", name="Test_Err_no_Human"+str(run)+"_"+str(EPSILON))
         no_guide_steps.append(steps_no_guide[0])
     
     print("Truth:")
