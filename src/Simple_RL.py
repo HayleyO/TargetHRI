@@ -101,7 +101,7 @@ class Q_Learning_RL_environment():
         return action
 
     # Q-Learning MDP
-    def run_episodes(self, print_grid=True, train=True):
+    def run_episodes(self, print_grid=True, train=True, print_data=True):
         rewards_per_episode = []
         for e in range(self.n_episodes):
             self.grid.refresh_grid()
@@ -117,7 +117,7 @@ class Q_Learning_RL_environment():
                 action = self.epsilon_greedy(current_step_state)
                 if action == Actions.Ask_For_Guidance:
                     guidance_count = guidance_count + 1
-                next_state, reward, done, lie_detected = self.take_action(action)
+                next_state, reward, done, lie_detected = self.take_action(action, print_data)
                 action_index = self.action_index(action) # Get table index of actions
                 # Update q table
                 # Potential "changed/improved" algorithm problem: action will be "guidance" but it won't be specific from guidance -> guided action
@@ -154,7 +154,7 @@ class Q_Learning_RL_environment():
     def load_epsilon(self, path="SavedRuns", name="test"):
         self.epsilon = load_epsilon(path, name)
         
-    def take_action(self, action):
+    def take_action(self, action, print_data):
         lie_detected = False
         if action == Actions.Ask_For_Guidance:
             if self.oracle == None:
@@ -181,67 +181,72 @@ class Q_Learning_RL_environment():
                     curr_q_normalized = normalize(self.q_table)
                     curr_guide_q = curr_q_normalized[curr_state][self.action_index(Actions.Ask_For_Guidance)]
                     curr_dir_q = curr_q_normalized[curr_state][self.action_index(action)]
-                    print("Current Guide Q: " + str(curr_guide_q))
-                    print("Curent Direction Q: " + str(curr_dir_q))
 
                     current_decision = (curr_dir_q - curr_guide_q)
-                    print("Curent Decision Q: " + str(current_decision))
                 
-                    print()
+
                     q_table_truth = load_q_table(name="Test_Truth")
                     q_normalized_truth = normalize(q_table_truth)
                     true_guide_q = q_normalized_truth[curr_state][self.action_index(Actions.Ask_For_Guidance)]
                     true_dir_q = q_normalized_truth[curr_state][self.action_index(action)]
-                    print("True Guide Q: " + str(true_guide_q))
-                    print("True Direction Q: " + str(true_dir_q))
-                    truth_decision = (true_dir_q - true_guide_q)
-                    print("Truth Decision Q: " + str(truth_decision))
 
-                    print()
+                    truth_decision = (true_dir_q - true_guide_q)
+
                     q_table_lie = load_q_table(name="Test_Lie")
                     q_normalized_lie = normalize(q_table_lie)
                     lie_guide_q = q_normalized_lie[curr_state][self.action_index(Actions.Ask_For_Guidance)]
                     lie_dir_q = q_normalized_lie[curr_state][self.action_index(action)]
-                    print("Lie Guide Q: " + str(lie_guide_q))
-                    print("Lie Direction Q: " + str(lie_dir_q))
+
                     lie_decision = (lie_dir_q - lie_guide_q)
-                    print("Lie Decision Q: " + str(lie_decision))
-                
-                    print()
-                    print("Distance Decisions ")
-                    true_dist = euclidean_dist(truth_decision, current_decision)
-                    lie_dist = euclidean_dist(lie_decision, current_decision)
+                    if print_data:
+                        print("Current Guide Q: " + str(curr_guide_q))
+                        print("Curent Direction Q: " + str(curr_dir_q))
+                        print("Curent Decision Q: " + str(current_decision))
+                        print()
+                        print("True Guide Q: " + str(true_guide_q))
+                        print("True Direction Q: " + str(true_dir_q))
+                        print("Truth Decision Q: " + str(truth_decision))
+                        print()
+                        print("Lie Guide Q: " + str(lie_guide_q))
+                        print("Lie Direction Q: " + str(lie_dir_q))
+                        print("Lie Decision Q: " + str(lie_decision))
+                        print()
+                        print("Distance Decisions ")
+                        true_dist = euclidean_dist(truth_decision, current_decision)
+                        lie_dist = euclidean_dist(lie_decision, current_decision)
 
-                    print()
-                    print("Decision Ratios")
-                    #lie_true_sim_ratio = ratio(truth_decision, lie_decision)
-                    true_decision_ratio = ratio(truth_decision, current_decision)
-                    lie_decision_ratio = ratio(lie_decision, current_decision)
-                    print()
-                    print("Distance to 1")
-                    true_dist_decision_to_1 = euclidean_dist(true_decision_ratio, 1)
-                    lie_dist_decision_to_1 = euclidean_dist(lie_decision_ratio, 1)
-                    #true_dist_decision_to_1 = euclidean_dist(abs(true_decision_ratio), 1)
-                    #lie_dist_decision_to_1 = euclidean_dist(abs(lie_decision_ratio), 1)
-                    print()
-                    print("Ratios")
+                        print()
+                        print("Decision Ratios")
+                    
+                    true_decision_ratio = ratio(truth_decision, current_decision, print_ratio=print_data)
+                    lie_decision_ratio = ratio(lie_decision, current_decision, print_ratio=print_data)
+                    if print_data:
+                        print()
+                        print("Distance to 1")
+                        true_dist_decision_to_1 = euclidean_dist(true_decision_ratio, 1)
+                        lie_dist_decision_to_1 = euclidean_dist(lie_decision_ratio, 1)
+                        #true_dist_decision_to_1 = euclidean_dist(abs(true_decision_ratio), 1)
+                        #lie_dist_decision_to_1 = euclidean_dist(abs(lie_decision_ratio), 1)
+                        print()
+                        print("Ratios")
+                    
                     #lie_true_sim_ratio = ratio(true_guide_q, lie_guide_q)
-                    true_q_ratio = ratio(true_guide_q, curr_guide_q)
-                    lie_q_ratio = ratio(lie_guide_q, curr_guide_q)
-                    print()
+                    true_q_ratio = ratio(true_guide_q, curr_guide_q, print_ratio=print_data)
+                    lie_q_ratio = ratio(lie_guide_q, curr_guide_q, print_ratio=print_data)
+                    
+                    if print_data:
+                        print()
+                        print("Distance to 1")
 
-                    print("Distance to 1")
-                    true_dist_to_1 = euclidean_dist(true_q_ratio, 1)
-                    lie_dist_to_1 = euclidean_dist(lie_q_ratio, 1)
-                    print()
+                    true_dist_to_1 = euclidean_dist(true_q_ratio, 1, print_dist=print_data)
+                    lie_dist_to_1 = euclidean_dist(lie_q_ratio, 1, print_dist=print_data)
 
-                    #print("Trust Metric")
-                    true_trust = multiplication(true_decision_ratio, true_dist_to_1)
-                    lie_trust = multiplication(lie_decision_ratio, lie_dist_to_1)
-                    #print()
-                    #print()
+                    if print_data:
+                        print()
+                        print("Trust Metric")
+                    true_trust = multiplication(true_decision_ratio, true_dist_to_1, print_mult=print_data)
+                    lie_trust = multiplication(lie_decision_ratio, lie_dist_to_1, print_mult=print_data)
 
-                    #Try out differen logics (maybe dist to 1 AND decision ratio?)
                     if lie_trust  < true_trust:
                         print("I think it's lying!")
                         lie_detected = True
