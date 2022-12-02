@@ -46,7 +46,7 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=False, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run))
 
         # No algorithm w/ no human feedback
         for run in range(RUNS):

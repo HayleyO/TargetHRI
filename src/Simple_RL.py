@@ -8,7 +8,7 @@ from DataAnalysis import ratio, euclidean_dist, multiplication, average, normali
 
 class Q_Learning_RL_environment():
 
-    def __init__(self, episodes=10000, grid = Grid(), oracle=None, guidance=True, trust_alg=True):
+    def __init__(self, episodes=10000, epsilon=1, grid = Grid(), oracle=None, guidance=True, trust_alg=True):
         # States: dimension x dimension grid
         self.grid = grid
         self.oracle = oracle
@@ -32,7 +32,7 @@ class Q_Learning_RL_environment():
         # Hyperparamaters
         self.n_episodes = episodes
         self.max_turn = 100
-        self.epsilon = 1 # Exploration (for epsilon exploration and decay)
+        self.epsilon = epsilon # Exploration (for epsilon exploration and decay)
         self.lr = 0.1 # Learning rate (for q_table calculations)
         self.gamma = 0.99 # Discount factor (for q_table calculations)
         self.min_explore_prob = 0.01 # Sets minimum for epsilon decay (for epsilon exploration and decay)
@@ -84,10 +84,10 @@ class Q_Learning_RL_environment():
     def epsilon_greedy(self, current_step_state):
         # This is called greedy epsilon, it takes random actions to "explore"
         if np.random.uniform(0,1) < self.epsilon:
-            if self.guidance:
-                action, _ = random.choice(list(self.actions.items()))
-            else:
-                action, _ = random.choice(list(self.actions.items())[1:])
+                if self.guidance:
+                    action, _ = random.choice(list(self.actions.items()))
+                else:
+                    action, _ = random.choice(list(self.actions.items())[1:])
         else:
             if self.guidance:
                 action_index = np.argmax(self.q_table[current_step_state,:])
@@ -217,13 +217,13 @@ class Q_Learning_RL_environment():
                     #lie_true_sim_ratio = ratio(truth_decision, lie_decision)
                     true_decision_ratio = ratio(truth_decision, current_decision)
                     lie_decision_ratio = ratio(lie_decision, current_decision)
-                    #print()
-                    #print("Distance to 1")
-                    #true_dist_decision_to_1 = euclidean_dist(true_decision_ratio, 1)
-                    #lie_dist_decision_to_1 = euclidean_dist(lie_decision_ratio, 1)
+                    print()
+                    print("Distance to 1")
+                    true_dist_decision_to_1 = euclidean_dist(true_decision_ratio, 1)
+                    lie_dist_decision_to_1 = euclidean_dist(lie_decision_ratio, 1)
                     #true_dist_decision_to_1 = euclidean_dist(abs(true_decision_ratio), 1)
                     #lie_dist_decision_to_1 = euclidean_dist(abs(lie_decision_ratio), 1)
-                    #print()
+                    print()
                     print("Ratios")
                     #lie_true_sim_ratio = ratio(true_guide_q, lie_guide_q)
                     true_q_ratio = ratio(true_guide_q, curr_guide_q)
@@ -236,13 +236,13 @@ class Q_Learning_RL_environment():
                     print()
 
                     #print("Trust Metric")
-                    #true_trust = multiplication((true_decision_ratio*lie_true_sim_ratio), true_dist_to_1)
-                    #lie_trust = multiplication((true_decision_ratio*(lie_true_sim_ratio-1)), lie_dist_to_1)
+                    true_trust = multiplication(true_decision_ratio, true_dist_to_1)
+                    lie_trust = multiplication(lie_decision_ratio, lie_dist_to_1)
                     #print()
                     #print()
 
                     #Try out differen logics (maybe dist to 1 AND decision ratio?)
-                    if (lie_dist_to_1  < true_dist_to_1  and lie_dist < true_dist) or lie_decision_ratio < true_decision_ratio :
+                    if lie_trust  < true_trust:
                         print("I think it's lying!")
                         lie_detected = True
                         m = np.zeros(len(self.actions), dtype=bool)
@@ -270,33 +270,33 @@ class Actions(Enum):
 
 if __name__ == "__main__":
     
-    rl_truth = Q_Learning_RL_environment(oracle=Oracle('truthful'))
+    '''rl_truth = Q_Learning_RL_environment(oracle=Oracle('truthful'), trust_alg=False)
     _ = rl_truth.run_episodes()
     save(rl_truth, name="Test_Truth")
     save_epsilon(rl_truth.epsilon, name="Test_Truth")
 
-    rl_lie = Q_Learning_RL_environment(oracle=Oracle('lying'))
+    rl_lie = Q_Learning_RL_environment(oracle=Oracle('lying'), trust_alg=False)
     _ = rl_lie.run_episodes()
     save(rl_lie, name="Test_Lie")
     save_epsilon(rl_lie.epsilon, name="Test_Lie")
 
-    rl_err = Q_Learning_RL_environment(oracle=Oracle('erroneous'))
+    rl_err = Q_Learning_RL_environment(oracle=Oracle('erroneous'), trust_alg=False)
     _ = rl_err.run_episodes()
     save(rl_err, name="Test_Err")
     save_epsilon(rl_err.epsilon, name="Test_Err")
 
-    rl_no_guide = Q_Learning_RL_environment(guidance=False)
+    rl_no_guide = Q_Learning_RL_environment(guidance=False, trust_alg=False)
     _ = rl_no_guide.run_episodes()
     save(rl_no_guide, name="Test_No_Guide")
-    save_epsilon(rl_no_guide.epsilon, name="Test_No_Guide")
+    save_epsilon(rl_no_guide.epsilon, name="Test_No_Guide")'''
 
-    #rl = Q_Learning_RL_environment(episodes=1)
-    #rl.load_q_table(name="Test_Err")
-    #rewards_per_episode= rl.run_episodes(print_grid=False, train=False)
-    #save(rl, name="Test_Err_Human_w_alg_true")
+    rl = Q_Learning_RL_environment(episodes=1)
+    rl.load_q_table(name="Test_Err")
+    rewards_per_episode= rl.run_episodes(print_grid=False, train=False)
+    save(rl, name="Test_Err_Human_w_alg_true")
 
-    #print("LIE")
-    #rl = Q_Learning_RL_environment(episodes=1)
-    #rl.load_q_table(name="Test_Err")
-    #rewards_per_episode = rl.run_episodes(print_grid=False, train=False)
-    #save(rl, name="Test_Err_Human_w_alg_lie")
+    print("LIE")
+    rl = Q_Learning_RL_environment(episodes=1)
+    rl.load_q_table(name="Test_Err")
+    rewards_per_episode = rl.run_episodes(print_grid=False, train=False)
+    save(rl, name="Test_Err_Human_w_alg_lie")
