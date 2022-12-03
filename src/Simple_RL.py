@@ -104,7 +104,8 @@ class Q_Learning_RL_environment():
     def run_episodes(self, print_grid=True, train=True, print_data=True):
         rewards_per_episode = []
         for e in range(self.n_episodes):
-            self.grid.refresh_grid()
+            if(train):
+                self.grid.refresh_grid()
             current_step_state = self.get_state_from_grid_position()
             done = False    
 
@@ -117,6 +118,9 @@ class Q_Learning_RL_environment():
                 action = self.epsilon_greedy(current_step_state)
                 if action == Actions.Ask_For_Guidance:
                     guidance_count = guidance_count + 1
+                if not self.grid.check_move(self.actions[action]):
+                    action = Actions.Ask_For_Guidance
+
                 next_state, reward, done, lie_detected = self.take_action(action, print_data)
                 action_index = self.action_index(action) # Get table index of actions
                 # Update q table

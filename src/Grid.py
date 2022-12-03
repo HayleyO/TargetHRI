@@ -8,6 +8,7 @@ class Grid:
         self.bot_token = "o"
         self.empty_token = " "
         self.target_token = "*"
+        self.blocked_token = "#"
         self.grid = self.create_grid()
     
     def create_grid(self):
@@ -50,39 +51,57 @@ class Grid:
         row, col = self.get_robot_location()
         if direction == Directions.Up:     
             if row > 0:
-                self.set_element(row, col, self.empty_token)
-                row = row - 1
+                next_space = self.get_element(row-1, col)
+                if next_space != self.blocked_token:
+                    self.set_element(row, col, self.empty_token)
+                    row = row - 1
         elif direction == Directions.Down:
             if row < self.height-1:
-                self.set_element(row, col, self.empty_token)
-                row = row + 1
+                next_space = self.get_element(row+1, col)
+                if next_space != self.blocked_token:
+                    self.set_element(row, col, self.empty_token)
+                    row = row + 1
         elif direction == Directions.Left:
             if col > 0:
-                self.set_element(row, col, self.empty_token)
-                col = col - 1
+                next_space = self.get_element(row, col-1)
+                if next_space != self.blocked_token:
+                    self.set_element(row, col, self.empty_token)
+                    col = col - 1
         elif direction == Directions.Right:
             if col < self.width-1:
-                self.set_element(row, col, self.empty_token)
-                col = col + 1
+                next_space = self.get_element(row, col+1)
+                if next_space != self.blocked_token:
+                    self.set_element(row, col, self.empty_token)
+                    col = col + 1
         row_target, col_target = self.get_target_location()
         self.set_element(row, col, self.bot_token)
         return (row == row_target and col == col_target)
 
     def check_move(self, direction):
         row, col = self.get_robot_location()
+        row_new = row
+        col_new = col
         if direction == Directions.Up:     
             if row > 0:
-                row = row - 1
+                next_space = self.get_element(row-1, col)
+                if next_space != self.blocked_token:
+                    row_new = row - 1
         elif direction == Directions.Down:
             if row < self.height-1:
-                row = row + 1
+                next_space = self.get_element(row+1, col)
+                if next_space != self.blocked_token:
+                    row_new = row + 1
         elif direction == Directions.Left:
             if col > 0:
-                col = col - 1
+                next_space = self.get_element(row, col-1)
+                if next_space != self.blocked_token:
+                    col_new = col - 1
         elif direction == Directions.Right:
             if col < self.width-1:
-                col = col + 1
-        return ((row*self.height) + col)
+                next_space = self.get_element(row, col+1)
+                if next_space != self.blocked_token:
+                    col_new = col + 1
+        return (row != row_new or col != col_new)
 
     def print_grid(self):
         for row in self.grid:
