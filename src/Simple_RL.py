@@ -118,8 +118,9 @@ class Q_Learning_RL_environment():
                 action = self.epsilon_greedy(current_step_state)
                 if action == Actions.Ask_For_Guidance:
                     guidance_count = guidance_count + 1
-                if not self.grid.check_move(self.actions[action]):
-                    action = Actions.Ask_For_Guidance
+                
+                #if not self.grid.check_move(self.actions[action]):
+                #    action = Actions.Ask_For_Guidance
 
                 next_state, reward, done, lie_detected = self.take_action(action, print_data)
                 action_index = self.action_index(action) # Get table index of actions
