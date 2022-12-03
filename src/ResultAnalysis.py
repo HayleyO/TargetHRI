@@ -8,8 +8,8 @@ if __name__ == "__main__":
     RUNS = 10
     TRAIN = True
     PRINT_DATA = False
-    PRINT_GRID = True
-    EPSILON = 0
+    PRINT_GRID = False
+    EPSILON = 0.5
 
     if TRAIN:
         # Algorithm w/ true human feedback
@@ -17,9 +17,9 @@ if __name__ == "__main__":
         for run in range(RUNS):
             print("Run " + str(run) + ":")
             grid = Grid()
-            grid.set_element(1,3,grid.blocked_token)
-            grid.set_element(2,2,grid.blocked_token)
-            grid.set_element(3,1,grid.blocked_token)
+            #grid.set_element(1,3,grid.blocked_token)
+            #grid.set_element(2,2,grid.blocked_token)
+            #grid.set_element(3,1,grid.blocked_token)
             rl = Q_Learning_RL_environment(grid=grid, episodes=1, epsilon=EPSILON)
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
@@ -31,9 +31,9 @@ if __name__ == "__main__":
         for run in range(RUNS):
             print("Run " + str(run) + ":")
             grid = Grid()
-            grid.set_element(1,3,grid.blocked_token)
-            grid.set_element(2,2,grid.blocked_token)
-            grid.set_element(3,1,grid.blocked_token)
+            #grid.set_element(1,3,grid.blocked_token)
+            #grid.set_element(2,2,grid.blocked_token)
+            #grid.set_element(3,1,grid.blocked_token)
             rl = Q_Learning_RL_environment(grid=grid, episodes=1, epsilon=EPSILON)
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
@@ -45,9 +45,9 @@ if __name__ == "__main__":
         for run in range(RUNS):
             print("Run " + str(run) + ":")
             grid = Grid()
-            grid.set_element(1,3,grid.blocked_token)
-            grid.set_element(2,2,grid.blocked_token)
-            grid.set_element(3,1,grid.blocked_token)
+            #grid.set_element(1,3,grid.blocked_token)
+            #grid.set_element(2,2,grid.blocked_token)
+            #grid.set_element(3,1,grid.blocked_token)
             rl = Q_Learning_RL_environment(grid=grid, episodes=1, epsilon=EPSILON, trust_alg=False)
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
@@ -59,9 +59,9 @@ if __name__ == "__main__":
         for run in range(RUNS):
             print("Run " + str(run) + ":")
             grid = Grid()
-            grid.set_element(1,3,grid.blocked_token)
-            grid.set_element(2,2,grid.blocked_token)
-            grid.set_element(3,1,grid.blocked_token)
+            #grid.set_element(1,3,grid.blocked_token)
+            #grid.set_element(2,2,grid.blocked_token)
+            #grid.set_element(3,1,grid.blocked_token)
             rl = Q_Learning_RL_environment(grid=grid, episodes=1, epsilon=EPSILON, trust_alg=False)
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
@@ -72,9 +72,9 @@ if __name__ == "__main__":
         for run in range(RUNS):
             print("Run " + str(run) + ":")
             grid = Grid()
-            grid.set_element(1,3,grid.blocked_token)
-            grid.set_element(2,2,grid.blocked_token)
-            grid.set_element(3,1,grid.blocked_token)
+            #grid.set_element(1,3,grid.blocked_token)
+            #grid.set_element(2,2,grid.blocked_token)
+            #grid.set_element(3,1,grid.blocked_token)
             rl = Q_Learning_RL_environment(grid=grid, episodes=1, epsilon=EPSILON, trust_alg=False, guidance=False)
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
