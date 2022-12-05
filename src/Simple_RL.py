@@ -121,6 +121,7 @@ class Q_Learning_RL_environment():
                 
                 #if not self.grid.check_move(self.actions[action]):
                 #    action = Actions.Ask_For_Guidance
+                #    guidance_count = guidance_count + 1
 
                 next_state, reward, done, lie_detected = self.take_action(action, print_data)
                 action_index = self.action_index(action) # Get table index of actions
@@ -145,10 +146,13 @@ class Q_Learning_RL_environment():
                 if print_grid:
                     self.grid.print_grid()
                 step_i = step
+            # Used to determine accuracy of algorithm                
             self.steps_per_episode.append(step_i)
             self.lie_count = lie_count
             self.guidance_count = guidance_count
-            self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
+            # Used for reinforcement learning with epsilon decay
+            if train:
+                self.epsilon = max(self.min_explore_prob, np.exp(-self.exploration_decreasing_decay*e))
             rewards_per_episode.append(total_episode_reward)
         self.rewards_per_episode = rewards_per_episode
         return rewards_per_episode
