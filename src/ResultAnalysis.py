@@ -6,7 +6,7 @@ from Grid import Grid
 if __name__ == "__main__":
 
     RUNS = 10
-    TRAIN = True
+    TRAIN = False
     PRINT_DATA = False
     PRINT_GRID = False
     EPSILON = 0.5
@@ -66,11 +66,11 @@ if __name__ == "__main__":
             rl.load_q_table(name="Test_Err")
             #rl.load_epsilon(name="Test_Err")
             rewards_per_episode = rl.run_episodes(print_grid=PRINT_GRID, print_data=PRINT_DATA, train=False)
-            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run))
+            save(rl, path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run))
 
         # No algorithm w/ no human feedback
         for run in range(RUNS):
-            print("Run " + str(run) + ":")
+            #print("Run " + str(run) + ":")
             grid = Grid()
             #grid.set_element(1,3,grid.blocked_token)
             #grid.set_element(2,2,grid.blocked_token)
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     
     lie_no_alg_steps = []
     for run in range(RUNS):
-        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run))
+        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run))
         lie_no_alg_steps.append(steps_lie_no_alg[0])
 
     no_guide_steps = []
