@@ -54,7 +54,7 @@ class Oracle:
         Returns Directions according to oracle type
         '''
         candidate_values = self.get_candidate_values(grid)
-        print(candidate_values)
+        #print(candidate_values)
         MIN, MAX = 99999999, -1
         best, worst = None, None
 
