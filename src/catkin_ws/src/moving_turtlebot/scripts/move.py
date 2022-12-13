@@ -37,12 +37,15 @@ def move(grid, direction, cmd_vel, move_cmd, r):
         if grid.check_move(direction):
             rotate(-1.13, move_cmd, cmd_vel)
             move_forward(1, move_cmd, cmd_vel, r)
+            rotate(1.127, move_cmd, cmd_vel)
         else: print('Invalid Movement')
 
     elif direction == Directions.right:
         if grid.check_move(direction):
             rotate(1.127, move_cmd, cmd_vel)
             move_forward(1, move_cmd, cmd_vel, r)
+            rotate(-1.13, move_cmd, cmd_vel)
+        else: print('Invalid Movement')
 
 
  
