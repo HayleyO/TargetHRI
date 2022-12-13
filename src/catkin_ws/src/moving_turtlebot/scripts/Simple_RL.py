@@ -5,11 +5,14 @@ from Grid import Grid, Directions
 from Oracle import Oracle
 from SaveAndLoadHelper import save, load_q_table, load_epsilon, save_epsilon
 from DataAnalysis import ratio, euclidean_dist, multiplication, average, normalize
+from move import Turtlebot
 
 class Q_Learning_RL_environment():
 
-    def __init__(self, episodes=10000, epsilon=1, grid = Grid(), oracle=None, guidance=True, trust_alg=True):
+    def __init__(self, episodes=10000, epsilon=1, grid = Grid(), oracle=None, guidance=True, trust_alg=True, tb=Turtlebot()):
         # States: dimension x dimension grid
+
+        self.tb = tb
         self.grid = grid
         self.oracle = oracle
         self.guidance = guidance
@@ -266,7 +269,8 @@ class Q_Learning_RL_environment():
                         action = self.action_from_index(action_index)
 
             else: action = self.action_from_direction(self.oracle.give_advice(self.grid))
-        termination_state = self.grid.move_robot(self.actions[action])
+        # termination_state = self.grid.move_robot(self.actions[action])
+        termination_state = self.tb.move(self.actions[action])
         self.current_state = self.get_state_from_grid_position()
         if termination_state:
             return self.current_state, self.termination_correct_reward, termination_state, lie_detected
@@ -303,6 +307,8 @@ if __name__ == "__main__":
     _ = rl_no_guide.run_episodes()
     save(rl_no_guide, name="Test_No_Guide")
     save_epsilon(rl_no_guide.epsilon, name="Test_No_Guide")'''
+
+    grid = Grid()
 
     rl = Q_Learning_RL_environment(episodes=1)
     rl.load_q_table(name="Test_Err")
