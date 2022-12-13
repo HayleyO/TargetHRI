@@ -52,3 +52,11 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/moving_turtlebot" TYPE FILE FILES "/home/hayley/Documents/Target/TargetHRI/src/catkin_ws/src/moving_turtlebot/package.xml")
 endif()
 
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/moving_turtlebot" TYPE PROGRAM FILES "/home/hayley/Documents/Target/TargetHRI/src/catkin_ws/build/moving_turtlebot/catkin_generated/installspace/move.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/moving_turtlebot" TYPE PROGRAM FILES "/home/hayley/Documents/Target/TargetHRI/src/catkin_ws/build/moving_turtlebot/catkin_generated/installspace/move_arm.py")
+endif()
+
