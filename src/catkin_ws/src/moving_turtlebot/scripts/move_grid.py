@@ -2,7 +2,10 @@
 
 import rospy
 from geometry_msgs.msg import Twist
+from kobuki_msgs.msg import BumperEvent
+
 from math import pi
+
 from Grid import Grid, Directions
 from SaveAndLoadHelper import load, save
 from Simple_RL import Q_Learning_RL_environment
@@ -17,6 +20,7 @@ class Turtlebot:
     def __init__(self, grid=Grid(dimension=3)):
         #Ros setup
         self.cmd_vel = rospy.Publisher('cmd_vel_mux/input/navi', Twist, queue_size=10)
+        self.listener = rospy.Subscriber("/mobile_base/events/bumper", BumperEvent, listen)
 
         self.move_cmd = Twist()
         self.r = rospy.Rate(2)
@@ -62,15 +66,21 @@ class Turtlebot:
         self.cmd_vel.publish(self.move_cmd)
         rospy.sleep(duration)
 
-EPSILON = 0.5
+EPSILON = 0
+done = False
+
+def listen(data):
+    global done
+    done = True
 
 if __name__ == '__main__':
-
+    
     rospy.init_node('Testing_Motion', anonymous=True)
+    rospy.Subscriber("/mobile_base/events/bumper", BumperEvent, listen)
 
     grid = Grid(dimension=3)
     tb = Turtlebot(grid)
-
+    parsing = False
     if raw_input('Parsing? y/n ') in ['yes', 'y']:
         parsing = True
         while parsing:
@@ -91,7 +101,7 @@ if __name__ == '__main__':
             #Exit the loop for parsing
             elif input_dir.lower() == "x":
                 parsing = False
-            
+                
             elif input_dir.lower() == 'p':
                 grid.print_grid()
     else:
@@ -101,7 +111,7 @@ if __name__ == '__main__':
         done = False
         while not done:
             #To do integrate bumper
-            done, action, past_state = rl.move_to_policy()
+            done_grid, action, past_state = rl.move_to_policy()
             past_row, past_col = rl.get_grid_position_from_state(past_state)
             print(action)
             tb.move(action, past_row, past_col)
@@ -110,6 +120,7 @@ if __name__ == '__main__':
         rl.steps_per_episode.append(rl.steps)
         name = raw_input('What will this run be called? ')
         save(rl, path="SavedRuns/People", name="name")
+
 
 
 
