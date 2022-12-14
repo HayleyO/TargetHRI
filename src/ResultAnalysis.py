@@ -104,7 +104,7 @@ if __name__ == "__main__":
     
     lie_no_alg_steps = []
     for run in range(RUNS):
-        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_do_alg_Lie_"+str(run))
+        q_table_lie, rewards_lie, steps_lie_no_alg, lie_count_lie_no_alg, guide_count_lie_no_alg = load(path="SavedRuns/Analysis", name="Test_Err_Human_w_o_alg_Lie_"+str(run))
         lie_no_alg_steps.append(steps_lie_no_alg[0])
 
     no_guide_steps = []
